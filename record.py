@@ -1,5 +1,6 @@
 from filehandle import FileHandle,FileInfo
-import struct
+from error import RC_Error
+import struct,enum
 
 class RecordHandle():
 	"""docstring for RecordHandle"""
@@ -36,6 +37,7 @@ class RecordHandle():
 		if isinstance(rcdata, list):
 			data = struct.pack(self.fileinfo_.format_,1,*rcdata)
 			self.fh.write_line(data,num)
+			return num
 		else:
 			raise Exception("rcdata must be list")
 		
@@ -58,22 +60,35 @@ class RecordHandle():
 
 	def __update_record__(self,rcdata,num):
 		index = 1
-		num-=1
-		data = self.fh.read_line(index)
-		while data != None and num != 0:
-			if len(data) != 4:
-				num -= 1
+		while True:
 			data = self.fh.read_line(index)
+			if data == None:
+				print index
+				raise Exception("Update Rc:num is too big")
+			
+			num-=1
+			if num == 0:
+				if len(data) == 4:
+					raise Exception("RC is deleted")
+				self.fh.write_line(rcdata,index)
+				break
 			index += 1
-		if data != None and len(data) != 4:
-			self.fh.write_line(rcdata,index)
-		else:
-			raise Exception("Record not exists")
 
 	def get_record(self,num):
-		data = self.fh.read_line(num)
-		data = struct.unpack(self.fileinfo_.format_)[1:]
-		return data
+		index = 1
+		while True:
+			data = self.fh.read_line(index)
+			if data == None:
+				return RC_Error.FILE_EOF
+			
+			num-=1
+			if num == 0:
+				if len(data) == 4:
+					return RC_Error.EMPTY_RC
+				d = struct.unpack(self.fileinfo_.format_,data)[1:]
+				return d
+			index += 1
+
 
 	def __get_free_slot__(self):
 		index = 1
@@ -89,15 +104,12 @@ class RecordHandle():
 
 	def show_all_record(self):
 		index = 1
-		data = self.fh.read_line(index)
-		while data != None:
-			if len(data) == 4:
-				index += 1
-				data = self.fh.read_line(index)
-				continue
-			d = struct.unpack(self.fileinfo_.format_,data)[1:]
-			print d
-			index += 1
-			data = self.fh.read_line(index)
+		data = self.get_record(index)
+		while data != RC_Error.FILE_EOF:
+			if data != RC_Error.EMPTY_RC:
+				print data
+
+			index +=1
+			data = self.get_record(index)
 
 

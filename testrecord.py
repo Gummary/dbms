@@ -68,7 +68,7 @@ def TestInsert():
 		rh.create_file()
 		rh.open_file()
 	except Exception  ,e:
-			rh.open_file()
+		rh.open_file()
 	i = 1
 	for i in range(0,10):
 		rcdata = [random_str(10),random_str(5),random_num(10),17]
@@ -84,9 +84,9 @@ def TestDele():
 	except Exception  ,e:
 			rh.open_file()
 	rh.delete_record(1)
-	# rh.delete_record(3)
-	# rh.delete_record(4)
-	# rh.delete_record(5)
+	rh.delete_record(3)
+	rh.delete_record(4)
+	rh.delete_record(5)
 	rh.show_all_record()
 	rh.close_file()
 
@@ -104,6 +104,14 @@ def TestUpdateRc():
 
 
 if __name__ == '__main__':
-	TestInsert()
+	try:
+		TestInsert()
+	except Exception, e:
+		print e
+	
 	print "============"
-	TestUpdateRc()
+	try:
+		TestDele()
+	except Exception, e:
+		print e
+	

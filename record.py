@@ -1,6 +1,6 @@
 from filehandle import FileHandle,FileInfo
-from error import RC_Error
-import struct,enum
+from error import EOF,EMPTY_RC
+import struct
 
 class RecordHandle():
 	"""docstring for RecordHandle"""
@@ -79,12 +79,12 @@ class RecordHandle():
 		while True:
 			data = self.fh.read_line(index)
 			if data == None:
-				return RC_Error.FILE_EOF
+				raise EOF
 			
 			num-=1
 			if num == 0:
 				if len(data) == 4:
-					return RC_Error.EMPTY_RC
+					raise EMPTY_RC
 				d = struct.unpack(self.fileinfo_.format_,data)[1:]
 				return d
 			index += 1
@@ -104,12 +104,15 @@ class RecordHandle():
 
 	def show_all_record(self):
 		index = 1
-		data = self.get_record(index)
-		while data != RC_Error.FILE_EOF:
-			if data != RC_Error.EMPTY_RC:
+		while True:
+			try:
+				data = self.get_record(index)
+			except EOF,e:
+				break
+			except EMPTY_RC,e:
+				continue
+			else:
 				print data
-
-			index +=1
-			data = self.get_record(index)
-
+			finally:
+				index += 1
 

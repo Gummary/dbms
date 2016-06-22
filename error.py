@@ -1,6 +1,7 @@
-from enum import Enum,unique
+class EOF(Exception):
+	def __init__(self,value = None):
+		self.value = value
 
-@unique
-class RC_Error(Enum):
-	FILE_EOF = 1
-	EMPTY_RC = 2
+class EMPTY_RC(Exception):
+	def __init__(self,value = None):
+		self.value = value

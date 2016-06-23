@@ -1,19 +1,21 @@
-from filehandle import FileHandle,FileInfo
+from filehandle import FileHandle,RCFileInfo
 from error import EOF,EMPTY_RC
 import struct
 
+
+
 class RecordHandle():
 	"""docstring for RecordHandle"""
-	def __init__(self,filename,rcsize,rcformat):
+	def __init__(self,filename,rcformat):
 		rcformat = 'i'+rcformat
-		rcsize +=4
-		self.fileinfo = FileInfo(rcsize, 0, rcformat)
+		rcsize = 4+ struct.calcsize(rcformat)
+		self.fileinfo_ = RCFileInfo(rcsize, 0, rcformat)
 		self.filename = filename
 
 	def create_file(self):
-		self.fh = FileHandle(self.filename, self.fileinfo.rcsize_)
+		self.fh = FileHandle(self.filename, self.fileinfo_.rcsize_)
 		try:
-			self.fh.create_file(self.fileinfo)
+			self.fh.create_file(self.fileinfo_)
 		except Exception, e:
 			raise e
 
@@ -25,7 +27,7 @@ class RecordHandle():
 			self.fileinfo_ = self.fh.open_file()
 		except Exception, e:
 			raise e
-		
+
 	def close_file(self):
 		try:
 			self.fh.close_file()
@@ -40,13 +42,13 @@ class RecordHandle():
 			return num
 		else:
 			raise Exception("rcdata must be list")
-		
+
 	def delete_record(self,num):
 		try:
 			data = struct.pack('i',0)
 			self.__update_record__(data, num)
 		except Exception, e:
-			raise e	
+			raise e
 
 	def update_record(self,rcdata,num):
 		if isinstance(rcdata, list):
@@ -54,7 +56,7 @@ class RecordHandle():
 				data = struct.pack(self.fileinfo_.format_,1,*rcdata)
 				self.__update_record__(data, num)
 			except Exception, e:
-				raise e		
+				raise e
 		else:
 			raise Exception("record must be list")
 
@@ -65,7 +67,7 @@ class RecordHandle():
 			if data == None:
 				print index
 				raise Exception("Update Rc:num is too big")
-			
+
 			num-=1
 			if num == 0:
 				if len(data) == 4:
@@ -80,7 +82,7 @@ class RecordHandle():
 			data = self.fh.read_line(index)
 			if data == None:
 				raise EOF
-			
+
 			num-=1
 			if num == 0:
 				if len(data) == 4:
@@ -115,4 +117,3 @@ class RecordHandle():
 				print data
 			finally:
 				index += 1
-

@@ -1,7 +1,7 @@
 import os,struct
 
 
-class FileInfo:
+class RCFileInfo:
 
 	def __init__(self,rcsize= 0,rcnums = 0,fm = None):
 		self.rcsize_ = rcsize
@@ -69,7 +69,7 @@ class FileHandle:
 				self.file = open(self.filename, 'rb+')
 				self.isopen = True
 				byte = self.file.readline().rstrip('\n')
-				fileinfo = FileInfo()
+				fileinfo = RCFileInfo()
 				fileinfo.unpack_info(byte)
 				return fileinfo
 			except Exception, e:
@@ -86,14 +86,14 @@ class FileHandle:
 
 		try:
 			file = open(self.filename,'w')
-			if isinstance(fileinfo, FileInfo):
+			if isinstance(fileinfo, RCFileInfo):
 				byte = fileinfo.pack_info()
 				byte+='\n'
 				file.write(byte)
 				file.flush()
 				file.close()
 			else:
-				raise Exception("FileInfo must be FileInfo class")
+				raise Exception("FileInfo must be RCFileInfo class")
 		except Exception, e:
 			raise e
 		
@@ -107,7 +107,7 @@ class FileHandle:
 			raise Exception("File not Open")
 
 		self.__move_to_filehead__()
-		fileinfo = FileInfo()
+		fileinfo = RCFileInfo()
 		fileinfo.unpack_info(self.file.readline().rstrip('\n'))
 		return fileinfo
 
@@ -115,8 +115,8 @@ class FileHandle:
 		if not self.isopen:
 			raise Exception("File not Open")
 
-		if not isinstance(fileinfo, FileInfo):
-			raise Exception("fileinfo must be FileInfo class")
+		if not isinstance(fileinfo, RCFileInfo):
+			raise Exception("fileinfo must be RCFileInfo class")
 		self.__move_to_filehead__()
 		byte = fileinfo.pack_info()
 		byte += '\n'

@@ -1,5 +1,6 @@
 from record import RecordHandle
 from random import Random
+from database import DataBase
 import threading,struct
 
 def random_str(randomlength=8):
@@ -27,6 +28,8 @@ ctx = threading.local()
 # i   age
 ctx.format = '10s5s10si'
 ctx.filename = 'Student_db'
+ctx.db = None
+
 
 def TestOpenAndClose():
 	print '======StartTestingOpenandCloseFunc======'
@@ -54,7 +57,7 @@ def TestRecordChanged():
 		rh.insert_record(rcdata)
 	rh.show_all_record()
 	print '===================End=================='
-	print "=====StartTestingDeleteFunc======"	
+	print "=====StartTestingDeleteFunc======"
 	for i in range(1,1000):
 		rh.delete_record(i)
 	rh.show_all_record()
@@ -103,15 +106,41 @@ def TestUpdateRc():
 	rh.close_file()
 
 
+def TestCreateDB():
+	ctx.db = DataBase()
+	i = 0
+	dbname = random_str(5)
+	ctx.db.creat_db(dbname)
+	ctx.db.use_db(dbname)
+	value = "CHAR(5)"
+	for i in range(0,10):
+		tablename = random_str(3)
+		atrdic = {}
+		for i in range(0,10):
+			attrname = random_str(4)
+			value = "CHAR(%s)"%random_num(1)
+			atrdic[attrname] = value
+		ctx.db.create_table(tablename,**atrdic)
+	ctx.db.quitdb(dbname)
+	ctx.db.show_alldb()
+	ctx.db.use_db(dbname)
+	ctx.db.show_all_tables()
+	ctx.db.quitdb(dbname)
+	ctx.db.quit()
+
+
+
+
+
 if __name__ == '__main__':
-	try:
-		TestInsert()
-	except Exception, e:
-		print e
-	
-	print "============"
-	try:
-		TestDele()
-	except Exception, e:
-		print e
-	
+	# try:
+	# 	TestInsert()
+	# except Exception, e:
+	# 	print e
+
+	# print "============"
+	# try:
+	# 	TestDele()
+	# except Exception, e:
+	# 	print e
+	TestCreateDB()

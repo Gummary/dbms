@@ -2,8 +2,6 @@ from filehandle import FileHandle,RCFileInfo
 from error import EOF,EMPTY_RC
 import struct
 
-
-
 class RecordHandle():
 	"""docstring for RecordHandle"""
 	def __init__(self,filename,rcformat):

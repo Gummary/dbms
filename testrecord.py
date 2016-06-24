@@ -127,6 +127,24 @@ def TestCreateDB():
 	ctx.db.show_all_tables()
 	ctx.db.quitdb(dbname)
 	ctx.db.quit()
+def TestInsertDB():
+	insertsql1 = """
+	INSERT
+	INTO Student(snao,Sname,Ssex,Sdept,Sage)
+	VALUES('20151218','CHENDONG',"MAN","IS",18)
+	"""
+	insertsql2 = """
+	INSERT
+	INTO Student
+	VALUES('20151218','CHENDONG',"MAN","IS",18)
+	"""
+	insertsql3 = """
+	INSERT
+	INTO Student(Sdept,Sage)
+	VALUES("IS",18)
+	"""
+    ctx.db = DataBase()
+    ctx.db.insert_record()
 
 
 

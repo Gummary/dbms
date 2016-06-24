@@ -47,3 +47,28 @@ class TYPEERROR(Exception):
 
 	def __str__(self):
 		return "Type %s not exist"%self.name
+
+class ATTRNOTEXISTS(Exception):
+	def __init__(self,name):
+		self.name = name
+	def __str__(self):
+		return "Attributes %s not exists"%self.name
+
+
+class ExceedLimit(Exception):
+	def __init__(self,name):
+		self.name = name
+	def __str__(self):
+		return "The length of %s is exceed limit"%self.name
+
+class NONEVALUE(Exception):
+	def __init__(self,name):
+		self.name = name
+	def __str__(self):
+		return "%s must not be None"%self.name
+
+class UNAUTHORIZED(Exception):
+	def __init__(self,name):
+		self.name = name
+	def __str__(self):
+		return "The %s in unauthorized"%self.name

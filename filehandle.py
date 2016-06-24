@@ -21,7 +21,7 @@ class RCFileInfo:
 	def show(self):
 		return [self.rcsize_,self.rcnums_,self.format_]
 
-	
+
 
 class FileHandle:
 
@@ -33,7 +33,6 @@ class FileHandle:
 	def write_line(self,data,num):
 		if not self.isopen:
 			raise Exception("File not open")
-
 		self.__move_to_rc__(num)
 		data += '\n'
 		self.file.write(data)
@@ -42,7 +41,7 @@ class FileHandle:
 	def read_line(self,num):
 		if not self.isopen:
 			raise Exception("File not open")
-		
+
 		self.__move_to_rc__(num)
 		data = self.file.readline().rstrip('\n')
 		if len(data) == 0:
@@ -96,8 +95,10 @@ class FileHandle:
 				raise Exception("FileInfo must be RCFileInfo class")
 		except Exception, e:
 			raise e
-		
-		
+
+		print "CreatSuccess"
+
+
 
 	def remove_file(self):
 		os.remove(self.filename)

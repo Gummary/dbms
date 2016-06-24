@@ -4,11 +4,12 @@ import struct
 
 class RecordHandle():
 	"""docstring for RecordHandle"""
-	def __init__(self,filename,rcformat):
-		rcformat = 'i'+rcformat
-		rcsize = 4+ struct.calcsize(rcformat)
-		self.fileinfo_ = RCFileInfo(rcsize, 0, rcformat)
-		self.filename = filename
+	def __init__(self,filename = None,rcformat = None):
+		if filename != None:
+			rcformat = 'i'+rcformat
+			rcsize = struct.calcsize(rcformat)
+			self.fileinfo_ = RCFileInfo(rcsize, 0, rcformat)
+			self.filename = filename
 
 	def create_file(self):
 		self.fh = FileHandle(self.filename, self.fileinfo_.rcsize_)
@@ -20,11 +21,16 @@ class RecordHandle():
 	def desrory_file(self):
 		self.fh.remove_file()
 
-	def open_file(self):
-		try:
-			self.fileinfo_ = self.fh.open_file()
-		except Exception, e:
-			raise e
+	def open_file(self,filename,rcformat):
+		rcformat = 'i'+rcformat
+		rcsize = struct.calcsize(rcformat)
+		self.fileinfo_ = RCFileInfo(rcsize, 0, rcformat)
+		self.filename = filename
+		self.fh = FileHandle(self.filename, self.fileinfo_.rcsize_)
+		# try:
+		self.fileinfo_ = self.fh.open_file()
+		# except Exception, e:
+			# raise e
 
 	def close_file(self):
 		try:

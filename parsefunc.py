@@ -86,7 +86,32 @@ def CreateParse(dbhandle,sql):
 
 @parse("INSERT")
 def InsertParse(dbhandle,sql):
-	pass
+	sql = rmNoUseChar(sql)
+	sql = upperKetWord(sql)
+	pattern1 = "INSERT INTO (\w+)\((.*?)\) VALUES\((.*?)\)"
+	pattern1 = re.compile(pattern1,re.S)
+	pattern2 = "INSERT INTO (\w+) VALUES\((.*?)\)"
+	pattern2 = re.compile(pattern2,re.S)
+	if re.match(pattern1,sql) != None:
+		value = re.findall(pattern1,sql)[0]
+		tablename = value[0]
+		attrsname = value[1].split(",")
+		attrsvalue = value[2].split(",")
+		attrs = {}
+		for i in range(0,len(attrsname)):
+			attrs[attrsname[i]] = attrsvalue[i]
+		# print attrs
+		dbhandle.insert_record(tablename,attrs)
+
+	elif re.match(pattern2,sql) != None:
+		value = re.findall(pattern2,sql)[0]
+		tablename = value[0]
+		attrsvalue = value[1].split(",")
+		# print tablename
+		# print attrsvalue
+		dbhandle.insert_record(tablename,attrsvalue)
+	else:
+		raise SYNTAXERROR
 
 @parse("DELETE")
 def DeleteParse(dbhandle,sql):
@@ -103,15 +128,39 @@ def GrantParse(dbhandle,sql):
 
 
 if __name__ == '__main__':
-	creatsql = """
-	                  CREATE TABLE STUDENT
-	(SNO CHAR(9) PRIMARY KEY               ,
-	SNAME CHAR(20) UNIQUE,
-	SSEX CHAR(2),
-	SAGE INT,
-	SDEPT CHAR(20)
-	);"""
-
-	helpsql = """
-	help table tablename"""
-	print CreateParse(None, creatsql)
+	# creatsql = """
+	#                   CREATE TABLE STUDENT
+	# (SNO CHAR(9) PRIMARY KEY               ,
+	# SNAME CHAR(20) UNIQUE,
+	# SSEX CHAR(2),
+	# SAGE INT,
+	# SDEPT CHAR(20)
+	# );"""
+	#
+	# helpsql = """
+	# help table tablename"""
+	# print CreateParse(None, creatsql)
+	# """
+	# INSERT INTO (.*?)\((.*?)\) VALUES\((.*?)\)
+	# """
+	insertsql1 = """
+	INSERT
+	INTO Student(snao,Sname,Ssex,Sdept,Sage)
+	VALUES('20151218','CHENDONG',"MAN","IS",18)
+	"""
+	insertsql2 = """
+	INSERT
+	INTO Student
+	VALUES('20151218','CHENDONG',"MAN","IS",18)
+	"""
+	insertsql3 = """
+	INSERT
+	INTO Student(Sdept,Sage)
+	VALUES("IS",18)
+	"""
+	print "1"
+	print InsertParse(None,insertsql1)
+	print "2"
+	print InsertParse(None,insertsql2)
+	print "3"
+	print InsertParse(None,insertsql3)

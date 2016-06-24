@@ -1,7 +1,6 @@
-from error import NODBSELE,NOSUCHDB,DBEXISTS,TABLEEXISTS,TABLENOTEXISTS
-import re
+from error import NODBSELE,NOSUCHDB,DBEXISTS,TABLEEXISTS,TABLENOTEXISTS,ATTRNOTEXISTS,ExceedLimit,NONEVALUE
+import re,struct
 from record import RecordHandle
-
 
 def check_permission(Excep):
 	def decorator(func):
@@ -147,7 +146,6 @@ class DataBase():
 			dbfile.write(data)
 		dbfile.close()
 
-
 	def create_table(self,tablename,*attrs):
 		self.__create_table__(tablename,self.use,*attrs)
 
@@ -171,3 +169,53 @@ class DataBase():
 
 	def get_alldb(self):
 		return self.alldb
+
+
+	def insert_record(self,tablename,values):
+		if not self.use:
+			raise NODBSELE
+
+		if not self.has_table(tablename):
+			raise TABLENOTEXISTS(tablename)
+
+		attrformat = self.dbattrs[tablename][-1][1]
+		attrs = self.get_tableattrs(tablename)
+		data = []
+		if isinstance(values,dict):
+			allkey = values.keys()
+			for key in allkey:
+				flag = False
+				for attr in attrs:
+					if key == attr[0]:
+						flag = True
+						break
+				if not flag:
+					raise ATTRNOTEXISTS(key)
+			limit = attrformat.split("s")
+			while "" in limit:
+				limit.remove("")
+			index = 0
+			for attr in attrs:
+				valuename = attr[0]
+				valuelen = attr[1]
+				if valuename == "__format__":
+					continue
+				l = int(limit[index])
+				index+=1
+				if "PRIMARY KEY" in attr or "NOT NULL" in attr:
+					if valuename not in values:
+						raise NONEVALUE(valuename)
+				if valuename in values:
+					if len(values[valuename]) > l:
+						raise ExceedLimit
+					data.append(values[valuename])
+				else:
+					data.append("\x00")
+		elif isinstance(values,list):
+			data = values
+		else:
+			raise Exception("Unkonw Value")
+		rchandle = RecordHandle()
+		rchandle.open_file(tablename,attrformat)
+		rchandle.insert_record(data)
+		rchandle.close_file()

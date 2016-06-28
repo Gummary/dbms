@@ -76,6 +76,7 @@ class ParseSql():
 		if self.parsefunc.has_key(funcname):
 			if funcname not in self.userpermit:
 				raise UNAUTHORIZED(funcname)
+				sql.rstrip(";")
 			self.parsefunc[funcname](self.dbhandle,sql)
 		else:
 			raise SYNTAXERROR
@@ -102,8 +103,24 @@ class ParseSql():
 
 	def __get_user_input__():
 		while True:
-			sql = raw_input()
+			sql = ""
+			while ";" not in sql:
+				sql += raw_input()+" "
 			self.parse_sql(sql)
+
+	def CheckSelect(self,sqldic):
+		tables = sqlDic["FROM"]
+	    selects = sqlDic["SELECT"]
+	    wheres = sqlDic["WHERE"]
+	    groups = sqlDic["GROUP"]
+	    orders = sqlDic["ORDER"]
+	    self.dbhandle.checkTable(tables,meta)
+	    sqlDic["SELECT"] = self.dbhandle.checkSelect(selects,tables,meta)
+	    sqlDic["WHERE"] = self.dbhandle.checkWhere(wheres,tables,meta)
+	    sqlDic["GROUP"] = self.dbhandle.checkGroup(groups,tables,meta)
+	    sqlDic["ORDER"] = self.dbhandle.checkOrder(orders,tables,meta)
+		self.dbhandle.do_select(sqlDic)
+
 
 
 if __name__ == '__main__':

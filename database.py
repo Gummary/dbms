@@ -51,6 +51,14 @@ class DataBase():
 		file = open(dbname,"wb+")
 		file.close()
 
+	def do_select(self,sqldic):
+		tablename = sqldic["FROM"][0]
+		rchandle = new RecordHandle()
+		attrformat = self.dbattrs[tablename][-1][1]
+		rchandle.open_file(tablename,attrformat)
+		rchandle.show_all_record()
+
+
 
 
 	def use_db(self,dbname):
@@ -104,6 +112,73 @@ class DataBase():
 			return
 		print self.dbtables
 		print self.dbattrs
+
+	def check_table(self,tables):
+		for table in tables:
+		    if not self.has_table(table):
+				raise TABLENOTEXISTS(table)
+		return True
+
+	def checkSelect(self,selects,tables):
+	    for i in range(len(selects)):
+	        select = selects[i]
+	        if "*" in select[0]:
+	            continue
+	        findTable = self.isInTable(select[0],tables)
+	        if findTable == None:
+	            raise ATTRNOTEXISTS(select[0])
+	        selects[i][0] =findTable+"."+select[0].upper()
+	    return selects
+
+
+	def checkWhere(self,wheres,tables):
+		if wheres == None:
+		    return None
+		length = len(wheres)
+		i = 0
+		while i < length:
+		    where = wheres[i]
+		    findTable = self.isInTable(where[0],tables)
+		    if findTable == None:
+		        raise ATTRNOTEXISTS(where[0])
+		    wheres[i][0] =findTable+"."+where[0].upper()
+		    findTable = isInTable(where[2].upper(),tables,meta)
+		    if findTable != None:
+		        where[2] =findTable+"."+where[2].upper()
+		        wheres.pop(i)
+		        wheres.append(where)
+		        i -= 1
+		        length = length - 1
+		    i += 1
+	return wheres
+
+	def checkGroup(self,groups,tables):
+    if groups == None:
+        return None
+    for i in range(len(groups)):
+        findTable = self.isInTable(groups[i],tables)
+        if findTable == None:
+            raise ATTRNOTEXISTS(group[i])
+        groups[i] = findTable+"."+groups[i]
+    return groups
+
+	def checkOrder(self,orders,tables):
+    if orders ==None:
+        return None
+    for i in range(len(orders)):
+        findTable = self.isInTable(orders[i][0],tables)
+        if findTable == None:
+            raise ATTRNOTEXISTS(orders[i][0])
+        orders[i][0] = findTable+"."+orders[i][0]
+    return orders
+
+	def isInTable(self,attr,tables):
+		for table in tables:
+			attrs = self.get_tableattrs(table)
+			for a in attrs:
+				if attr in attrs:
+					return table
+		return None
 
 
 	@check_permission(NODBSELE)
